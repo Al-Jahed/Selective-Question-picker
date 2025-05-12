@@ -2,22 +2,37 @@ import streamlit as st
 import requests
 
 # Access the GitHub token from Streamlit secrets
-GITHUB_TOKEN = st.secrets["github"]["token"]  # Ensure this is set up in your secrets.toml
+# Ensure the secrets.toml file contains:
+# [github]
+# token = "your_github_token_here"
+GITHUB_TOKEN = st.secrets["github"]["token"]
 
 # Function to fetch files from GitHub
 def fetch_files_from_github():
     url = "https://api.github.com/repos/Al-Jahed/Selective-Question-picker/contents/QuestionList"
     headers = {
-        "Authorization": f"token {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}"  # Securely use the token from secrets
+        "Authorization": f"token {GITHUB_TOKEN}"  # Using token securely from secrets
     }
 
-    response = requests.get(url, headers=headers)
+    try:
+        response = requests.get(url, headers=headers)
 
-    if response.status_code == 200:
-        return response.json()  # Return list of files
-    else:
-        st.error(f"Error fetching files from GitHub: {response.status_code} - {response.text}")
-        return []
+        # Check if the request was successful
+        if response.status_code == 200:
+            return response.json()  # Return list of files
+        elif response.status_code == 401:
+            st.error("Unauthorized access: Please check your GitHub token.")
+        elif response.status_code == 403:
+            st.error("API rate limit exceeded: Please wait or check your token permissions.")
+        elif response.status_code == 404:
+            st.error("Repository or path not found: Please verify the URL.")
+        else:
+            st.error(f"Unexpected error: {response.status_code} - {response.text}")
+    except requests.exceptions.RequestException as e:
+        st.error(f"An error occurred while connecting to GitHub: {str(e)}")
+    
+    # Return an empty list if there was an issue
+    return []
 
 # Streamlit interface
 st.set_page_config(page_title="GitHub File Fetcher", layout="centered")
@@ -33,7 +48,6 @@ if st.button("Show Files from GitHub"):
         files = fetch_files_from_github()
 
         if files:
-            for file in files:
-                st.write(f"- {file['name']}")  # Display the file names
-        else:
-            st.warning("No files found or there was an issue fetching the files.")
+            st.write("### Files in `QuestionList` folder:")
+            for file in files
+
