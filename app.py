@@ -2,6 +2,13 @@ import streamlit as st
 import os
 import requests
 
+
+folder_api = "https://api.github.com/repos/yourusername/Selective-Question-picker/contents/QuestionList"
+res = requests.get(folder_api)
+files = res.json()
+
+docx_files = [f["download_url"] for f in files if f["name"].endswith(".docx")]
+
 # Set page configuration
 st.set_page_config(page_title="Question List Viewer", layout="centered")
 st.title("📘 Display Available Questions")
