@@ -6,9 +6,8 @@ GITHUB_TOKEN = st.secrets["github"]["token"]  # The token is stored as 'token' i
 
 # Function to fetch files from GitHub
 def fetch_files_from_github():
-    url = "https://api.github.com/repos/Al-Jahed/Selective-Question-picker/QuestionList"
-    headers = {
-    "Authorization": f"token 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"  # Replace with your actual GitHub token
+  url = "https://api.github.com/repos/Al-Jahed/Selective-Question-picker/contents/QuestionList"    headers = {
+    "Authorization": f"token {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}"lace with your actual GitHub token
 }
 
     response = requests.get(url, headers=headers)
@@ -16,7 +15,7 @@ def fetch_files_from_github():
     if response.status_code == 200:
         return response.json()  # Return list of files
     else:
-        st.error(f"Error fetching files from GitHub: {response.status_code}")
+      st.error(f"Error fetching files from GitHub: {response.status_code} - {response.text}")
         return []
 
 # Streamlit interface
