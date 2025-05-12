@@ -2,6 +2,9 @@ import streamlit as st
 import requests
 from dotenv import load_dotenv
 import os
+import streamlit as st
+
+github_token = st.secrets["github"]["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"]
 
 # Load the environment variables from the .env file
 load_dotenv()
