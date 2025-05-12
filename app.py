@@ -2,20 +2,21 @@ import streamlit as st
 import requests
 
 # Access the GitHub token from Streamlit secrets
-GITHUB_TOKEN = st.secrets["github"]["token"]  # The token is stored as 'token' in secrets.toml
+GITHUB_TOKEN = st.secrets["github"]["token"]  # Ensure this is set up in your secrets.toml
 
 # Function to fetch files from GitHub
 def fetch_files_from_github():
-  url = "https://api.github.com/repos/Al-Jahed/Selective-Question-picker/contents/QuestionList"    headers = {
-    "Authorization": f"token {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}"lace with your actual GitHub token
-}
+    url = "https://api.github.com/repos/Al-Jahed/Selective-Question-picker/contents/QuestionList"
+    headers = {
+        "Authorization": f"token {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}"  # Securely use the token from secrets
+    }
 
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
         return response.json()  # Return list of files
     else:
-      st.error(f"Error fetching files from GitHub: {response.status_code} - {response.text}")
+        st.error(f"Error fetching files from GitHub: {response.status_code} - {response.text}")
         return []
 
 # Streamlit interface
