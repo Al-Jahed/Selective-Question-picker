@@ -4,7 +4,7 @@ import requests
 # Access the GitHub token from Streamlit secrets
 # Ensure the secrets.toml file contains:
 # [github]
-# token = "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"
+# token = "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"
 GITHUB_TOKEN = st.secrets["github"]["token"]
 
 # Function to fetch files from GitHub
