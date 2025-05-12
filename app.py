@@ -1,49 +1,47 @@
 import streamlit as st
-import os
 import requests
+from docx import Document
+from io import BytesIO
 
+# Streamlit page setup
+st.set_page_config(page_title="📘 GitHub DOCX Viewer", layout="centered")
+st.title("📘 Select and View DOCX Files from GitHub")
 
-folder_api = "https://api.github.com/repos/yourusername/Selective-Question-picker/contents/QuestionList"
-res = requests.get(folder_api)
-files = res.json()
-
-docx_files = [f["download_url"] for f in files if f["name"].endswith(".docx")]
-
-# Set page configuration
-st.set_page_config(page_title="Question List Viewer", layout="centered")
-st.title("📘 Display Available Questions")
-
-# URL to your GitHub repository's folder
-GITHUB_REPO_URL = 'https://raw.githubusercontent.com/yourusername/yourrepository/main/QuestionList/'
-
-# Function to fetch files from the folder
-def fetch_files_from_github():
-    # Get the file list from GitHub (raw URL)
-    file_url = GITHUB_REPO_URL + 'Prep.docx'  # Adjust if you have multiple files
-    response = requests.get(file_url)
-    
-    # Check if file exists and return its content
-    if response.status_code == 200:
-        return response.text  # Returns the raw text of the file
-    else:
-        return "Error: Unable to fetch file from GitHub"
-
-# Buttons for actions
 st.markdown("""
-Please choose an action below:
+This app lists `.docx` files from your GitHub repo's `QuestionList/` folder and displays their contents.
 """)
 
-# Button A: Search box (you can implement this later)
-if st.button("Button A: Search Box"):
-    st.write("You chose to search the file. This feature will be implemented later.")
+# GitHub Repo Information
+GITHUB_USER = "Al-Jahed"
+REPO_NAME = "Selective-Question-picker"
+FOLDER_PATH = "QuestionList"
+BRANCH = "main"  # Change to "master" if your branch name is different
 
-# Button B: Show all files in the folder (this will display the questions in the file)
-if st.button("Button B: Show All Files in Folder"):
-    with st.spinner("Fetching questions..."):
-        questions = fetch_files_from_github()
-        
-    if questions:
-        st.success("Questions fetched successfully!")
-        st.text_area("Questions from Prep.docx", questions, height=300)
+# GitHub API to list folder contents
+api_url = f"https://api.github.com/repos/{GITHUB_USER}/{REPO_NAME}/contents/{FOLDER_PATH}?ref={BRANCH}"
+
+# Request list of files from GitHub
+response = requests.get(api_url)
+
+if response.status_code == 200:
+    files = response.json()
+    docx_files = [f for f in files if f["name"].endswith(".docx")]
+
+    if docx_files:
+        file_names = [f["name"] for f in docx_files]
+        selected_name = st.selectbox("📂 Select a DOCX file", file_names)
+
+        selected_file = next(f for f in docx_files if f["name"] == selected_name)
+        download_url = selected_file["download_url"]
+
+        file_response = requests.get(download_url)
+        if file_response.status_code == 200:
+            doc = Document(BytesIO(file_response.content))
+            content = "\n".join([para.text for para in doc.paragraphs if para.text.strip()])
+            st.text_area(f"📄 Contents of `{selected_name}`", content, height=400)
+        else:
+            st.error("❌ Failed to download the selected file.")
     else:
-        st.error("Could not retrieve the questions.")
+        st.warning("⚠️ No `.docx` files found in the folder.")
+else:
+    st.error("❌ Unable to access GitHub folder. Make sure the repo and folder are public.")
