@@ -1,48 +1,38 @@
 import streamlit as st
 import requests
-from dotenv import load_dotenv
-import os
-import streamlit as st
 
-github_token = st.secrets["github"]["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"]
+# Access the GitHub token from Streamlit secrets
+GITHUB_TOKEN = st.secrets["github"]["token"]  # The token is stored as 'token' in secrets.toml
 
-# Load the environment variables from the .env file
-load_dotenv()
-
-# GitHub settings
-GITHUB_REPO = "Al-Jahed/Selective-Question-picker"
-FOLDER_PATH = "QuestionList"  # Path to the folder within the repo
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  # Get token from the .env file
-
-# Function to fetch the list of files from the specified folder in GitHub
+# Function to fetch files from GitHub
 def fetch_files_from_github():
-    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{FOLDER_PATH}"
-    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    url = "https://api.github.com/repos/Al-Jahed/Selective-Question-picker/content/QuestionList"
+    headers = {
+        "Authorization": f"token {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}"  # Use the token in the request header
+    }
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
-        files = response.json()
-        file_names = [file['name'] for file in files if file['type'] == 'file']
-        return file_names
+        return response.json()  # Return list of files
     else:
         st.error(f"Error fetching files from GitHub: {response.status_code}")
         return []
 
-# Streamlit app
-st.title("📄 Question List from GitHub")
+# Streamlit interface
+st.set_page_config(page_title="GitHub File Fetcher", layout="centered")
+st.title("GitHub File Fetcher")
 
 st.markdown("""
-This app fetches and displays the files from the `QuestionList` folder in the GitHub repository.
-Click the button below to load the list of available files.
+This app fetches files from a GitHub repository (`Selective-Question-picker`).
+Click the button below to list the available files in the `QuestionList` folder.
 """)
 
-# Button to fetch the files from GitHub
-if st.button("Show all files in the QuestionList folder"):
+if st.button("Show Files from GitHub"):
     with st.spinner("Fetching files..."):
         files = fetch_files_from_github()
+
         if files:
-            st.write("### Available files:")
             for file in files:
-                st.write(f"- {file}")
+                st.write(f"- {file['name']}")  # Display the file names
         else:
-            st.warning("No files found or error fetching files.")
+            st.warning("No files found or there was an issue fetching the files.")
