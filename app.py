@@ -11,10 +11,17 @@ st.title("📘 Selective Question Picker")
 GITHUB_USER = "Al-Jahed"
 REPO_NAME = "Selective-Question-picker"
 FOLDER_PATH = "QuestionList"
-BRANCH = "main"  # or master if that's your default branch
+BRANCH = "main"
 
-# --- GitHub API URL to list files ---
 api_url = f"https://api.github.com/repos/{GITHUB_USER}/{REPO_NAME}/contents/{FOLDER_PATH}?ref={BRANCH}"
+
+response = requests.get(api_url)
+
+if response.status_code == 200:
+    files = response.json()
+    # Process files
+else:
+    st.error(f"Error {response.status_code}: Unable to access the folder. Please check the repository and folder settings.")
 
 # --- Show Button to Display Files ---
 if st.button("📂 Show Available Files"):
