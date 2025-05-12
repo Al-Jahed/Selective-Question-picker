@@ -1,48 +1,50 @@
-import os
-import requests
 import streamlit as st
+import requests
+import os
 from dotenv import load_dotenv
 
-# Load the .env file to get the GitHub token
+# Load the GitHub token from .env file
 load_dotenv()
 
-# GitHub token from the environment variable
-GITHUB_TOKEN = os.getenv("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")
+# GitHub settings
+GITHUB_REPO = "Al-Jahed/Selective-Question-picker"
+FOLDER_PATH = "QuestionList"  # Path to the folder within the repo
 
-# GitHub repository details
-GITHUB_OWNER = "Al-Jahed"
-GITHUB_REPO = "Selective-Question-picker"
-FOLDER_PATH = "QuestionList"  # The folder in the repo
-
-# Function to fetch files from the QuestionList folder in the GitHub repo
+# Function to fetch the list of files from the specified folder in GitHub
 def fetch_files_from_github():
-    url = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{FOLDER_PATH}"
+    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
     
-    headers = {
-        "Authorization": f"token {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}"
-    }
-    
-    response = requests.get(url, headers=headers)
-    
-    if response.status_code == 200:
-        files = response.json()
-        file_names = [file['name'] for file in files if file['type'] == 'file']  # Get file names only
-        return file_names
-    else:
-        st.error(f"Error fetching files: {response.status_code}")
+    if GITHUB_TOKEN is None:
+        st.warning("GitHub token not found. Please provide a token in the .env file.")
         return []
 
-# Streamlit UI
-st.title("📁 Display Files in 'QuestionList' Folder")
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{FOLDER_PATH}"
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    response = requests.get(url, headers=headers)
 
-# Button to trigger file listing
-if st.button('Show Files in QuestionList'):
-    st.write("Fetching files from GitHub...")
-    files = fetch_files_from_github()
-    
-    if files:
-        st.write("### Available Files:")
-        for file in files:
-            st.write(f"- {file}")
+    if response.status_code == 200:
+        files = response.json()
+        file_names = [file['name'] for file in files if file['type'] == 'file']
+        return file_names
     else:
-        st.write("No files found or there was an error.")
+        st.error(f"Error fetching files from GitHub: {response.status_code}")
+        return []
+
+# Streamlit app
+st.title("📄 Question List from GitHub")
+
+st.markdown("""
+This app fetches and displays the files from the `QuestionList` folder in the GitHub repository.
+Click the button below to load the list of available files.
+""")
+
+# Button to fetch the files from GitHub
+if st.button("Show all files in the QuestionList folder"):
+    with st.spinner("Fetching files..."):
+        files = fetch_files_from_github()
+        if files:
+            st.write("### Available files:")
+            for file in files:
+                st.write(f"- {file}")
+        else:
+            st.warning("No files found or error fetching files.")
