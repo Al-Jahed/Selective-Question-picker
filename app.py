@@ -50,4 +50,7 @@ if st.button("Show Files from GitHub"):
         if files:
             st.write("### Files in `QuestionList` folder:")
             for file in files:
-
+                # Display each file's name
+                st.write(f"- {file.get('name')}")
+        else:
+            st.warning("No files found or an error occurred.")
