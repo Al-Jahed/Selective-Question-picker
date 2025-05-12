@@ -8,8 +8,9 @@ GITHUB_TOKEN = st.secrets["github"]["token"]  # The token is stored as 'token' i
 def fetch_files_from_github():
     url = "https://api.github.com/repos/Al-Jahed/Selective-Question-picker/QuestionList"
     headers = {
-        "Authorization": f"token {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}"  # Use the token in the request header
-    }
+    "Authorization": f"token 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"  # Replace with your actual GitHub token
+}
+
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
