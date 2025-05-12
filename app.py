@@ -6,7 +6,7 @@ st.set_page_config(page_title="Question File Selector", layout="centered")
 st.title("📑 Select and Display Question Files")
 
 # GitHub repository URL and folder path
-GITHUB_REPO = "https://api.github.com/repos/Al-Jahed/Selective-Question-picker/contents/QuestionList"
+GITHUB_REPO = "https://api.github.com/repos/Al-Jahed/Selective-Question-picker/QuestionList"
 
 # Function to get files from the GitHub folder
 def fetch_files_from_github():
