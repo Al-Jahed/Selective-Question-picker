@@ -6,3 +6,4 @@ openpyxl
 xlrd
 PyPDF2
 docx2txt
+load_dotenv
