@@ -1,23 +1,13 @@
 import streamlit as st
 import requests
-import os
-from dotenv import load_dotenv
-
-# Load the GitHub token from .env file
-load_dotenv()
 
 # GitHub settings
 GITHUB_REPO = "Al-Jahed/Selective-Question-picker"
 FOLDER_PATH = "QuestionList"  # Path to the folder within the repo
+GITHUB_TOKEN = "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"  # Paste your GitHub Token here
 
 # Function to fetch the list of files from the specified folder in GitHub
 def fetch_files_from_github():
-    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-    
-    if GITHUB_TOKEN is None:
-        st.warning("GitHub token not found. Please provide a token in the .env file.")
-        return []
-
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{FOLDER_PATH}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
     response = requests.get(url, headers=headers)
