@@ -1,56 +1,43 @@
 import streamlit as st
 import requests
-from docx import Document
-from io import BytesIO
 
-# --- Page Setup ---
-st.set_page_config(page_title="📘 Question File Selector", layout="centered")
-st.title("📘 Selective Question Picker")
+# Set up the page configuration
+st.set_page_config(page_title="Question File Selector", layout="centered")
+st.title("📑 Select and Display Question Files")
 
-# --- GitHub Repo Info ---
-GITHUB_USER = "Al-Jahed"
-REPO_NAME = "Selective-Question-picker"
-FOLDER_PATH = "QuestionList"
-BRANCH = "main"
+# GitHub repository URL and folder path
+GITHUB_REPO = "https://api.github.com/repos/Al-Jahed/Selective-Question-picker/contents/QuestionList"
 
-api_url = f"https://api.github.com/repos/{GITHUB_USER}/{REPO_NAME}/contents/{FOLDER_PATH}?ref={BRANCH}"
-
-response = requests.get(api_url)
-
-if response.status_code == 200:
-    files = response.json()
-    # Process files
-else:
-    st.error(f"Error {response.status_code}: Unable to access the folder. Please check the repository and folder settings.")
-
-# --- Show Button to Display Files ---
-if st.button("📂 Show Available Files"):
-    with st.spinner("Fetching file list..."):
-        response = requests.get(api_url)
-
-    if response.status_code == 200:
+# Function to get files from the GitHub folder
+def fetch_files_from_github():
+    try:
+        # Fetching the contents of the folder (QuestionList) from GitHub
+        response = requests.get(GITHUB_REPO)
+        response.raise_for_status()
         files = response.json()
-        docx_files = [f for f in files if f["name"].lower().endswith(".docx")]
 
-        if not docx_files:
-            st.warning("⚠️ No `.docx` files found in the `QuestionList` folder.")
+        # Filtering out the directories and listing the file names
+        file_list = [file['name'] for file in files if file['type'] == 'file']
+        return file_list
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error fetching files from GitHub: {e}")
+        return []
+
+# Streamlit user interface for selecting and displaying files
+st.markdown("""
+    This app will show all the available question files in the `QuestionList` folder.
+""")
+
+# Button to fetch and display all files
+if st.button("Show All Files in QuestionList"):
+    with st.spinner("Fetching files from GitHub..."):
+        file_list = fetch_files_from_github()
+        
+        if file_list:
+            st.write("### Files Available in QuestionList:")
+            for file_name in file_list:
+                st.write(f"- {file_name}")
         else:
-            file_names = [f["name"] for f in docx_files]
-            selected_name = st.selectbox("Select a file to view:", file_names)
-
-            # Get the download URL of selected file
-            selected_file = next(f for f in docx_files if f["name"] == selected_name)
-            download_url = selected_file["download_url"]
-
-            # Download and read the docx content
-            file_response = requests.get(download_url)
-            if file_response.status_code == 200:
-                doc = Document(BytesIO(file_response.content))
-                content = "\n".join([para.text for para in doc.paragraphs if para.text.strip()])
-                st.text_area(f"📄 Contents of `{selected_name}`", content, height=400)
-            else:
-                st.error("❌ Failed to download the selected file.")
-    else:
-        st.error("❌ Unable to access GitHub folder. Make sure the repo and folder are public.")
+            st.warning("No files found in the `QuestionList` folder or unable to fetch files.")
 else:
-    st.info("Click the button above to load `.docx` files from your GitHub folder.")
+    st.info("Click the button to see the files in the `QuestionList` folder.")
