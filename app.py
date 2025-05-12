@@ -49,5 +49,5 @@ if st.button("Show Files from GitHub"):
 
         if files:
             st.write("### Files in `QuestionList` folder:")
-            for file in files
+            for file in files:
 
